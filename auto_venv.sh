@@ -37,8 +37,10 @@ function __auto_venv_show() {
 }
 
 function __auto_venv_activate() {
-  source "$AUTO_VENV/bin/activate"
-  __auto_venv_show
+  if [ ! -z $AUTO_VENV ] ; then
+    source "$AUTO_VENV/bin/activate"
+    __auto_venv_show
+  fi
 }
 
 function cd() {
