@@ -6,11 +6,9 @@
 # avec `python -m venv .` : AUTO_VENV=$PWD
 # avec `python -m venv .env` : AUTO_VENV=$PWD/.env
 
-if [[ -f $HOME/.config/auto_venv ]] ; then
-  . $HOME/.config/auto_venv
-else
+if [[ -z $AUTO_VENV_PYTHON_SEARCH_PATH ]] ; then
   echo "[auto_venv] Veuillez spécifier le chemin de recherche des versions
-de python dans $HOME/.config/auto_venv:PYTHON_SEARCH_PATH."
+de python avec la variable AUTO_VENV_PYTHON_SEARCH_PATH."
 fi
 
 function autoactivate_venv() {
@@ -41,14 +39,14 @@ function cd() {
 
 function auto_venv() {
   echo "Versions Python disponibles :"
-  ls $PYTHON_SEARCH_PATH
+  ls $AUTO_VENV_PYTHON_SEARCH_PATH
   VENV_MODULE="venv"
   read -p "Version à utiliser pour l'environnement virtuel ? " PYTHON_VERSION
   if [[ $PYTHON_VERSION == "python2.7" ]] ; then
     VENV_MODULE="virtualenv"
   fi
   read -p "Chemin de l'environnement virtuel : " VENV_PATH
-  $PYTHON_SEARCH_PATH/$PYTHON_VERSION -m $VENV_MODULE $VENV_PATH
+  $AUTO_VENV_PYTHON_SEARCH_PATH/$PYTHON_VERSION -m $VENV_MODULE $VENV_PATH
   if [[ $VENV_PATH != /* ]] ; then
     echo "AUTO_VENV=\$PWD/$VENV_PATH" > $PWD/.auto_venv
   else
