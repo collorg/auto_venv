@@ -39,18 +39,21 @@ function __auto_venv_show() {
 function __auto_venv_activate() {
   if [ ! -z $AUTO_VENV ] ; then
     source "$AUTO_VENV/bin/activate"
-    __auto_venv_show
+    if [ "$OLD_AUTO_VENV" != "$AUTO_VENV" ] ; then
+      __auto_venv_show
+    fi
   fi
 }
 
 function cd() {
   builtin cd "$@"
+  OLD_AUTO_VENV=$AUTO_VENV
   unset AUTO_VENV
   __find_auto_venv_file
   if [[ -z "$VIRTUAL_ENV" ]] ; then
     __auto_venv_activate
   else
-    if [[ "$PWD" != `dirname "$VIRTUAL_ENV"`* ]] ; then
+    if [[ "$PWD" != `dirname "$AUTO_VENV"`* ]] ; then
       deactivate
     fi
     if [[ "$VIRTUAL_ENV" != "$AUTO_VENV" && ! -z "$AUTO_VENV" ]] ; then
@@ -65,11 +68,24 @@ function auto_venv() {
     ls "$AUTO_VENV_PYTHON_SEARCH_PATH"
     VENV_MODULE="venv"
     read -p "Version à utiliser pour l'environnement virtuel ? " PYTHON_VERSION
+    ls "$AUTO_VENV_PYTHON_SEARCH_PATH/$PYTHON_VERSION"
+    if [[ $PYTHON_VERSION == "python"* ]] ; then
+      if [[ $? != 0 ]] ; then
+        echo "Veuillez choisir une version de Python parmi celles proposées."
+        exit 1
+      fi
+    fi
     if [[ "$PYTHON_VERSION" == "python2.7" ]] ; then
       VENV_MODULE="virtualenv"
     fi
     read -p "Chemin de l'environnement virtuel : " VENV_PATH
+    if [ -z "$VENV_PATH" ] ; then
+      VENV_PATH='.'
+    fi
     $AUTO_VENV_PYTHON_SEARCH_PATH/$PYTHON_VERSION -m $VENV_MODULE "$VENV_PATH"
+    if [[ "$VENV_PATH" == '' || "$VENV_PATH" == '.' ]] ; then
+      AUTO_VENV=$PWD
+    fi
     if [[ "$VENV_PATH" != /* ]] ; then
       AUTO_VENV="$PWD/$VENV_PATH"
     else
