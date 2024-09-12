@@ -1,17 +1,11 @@
-# Script auto_venv.sh à activer dans .bashrc.
-# Activation automatique d'un environnement virtuel.
-# Rajouter dans le répertoire un fichier .auto_venv contenant
-# la variable AUTO_VENV.
-# Exemple pour un répertoire dont l'environnement virtuel a été créé
-# avec `python -m venv .` : AUTO_VENV=$PWD
-# avec `python -m venv .env` : AUTO_VENV=$PWD/.env
+# Script auto_venv.sh to be activated in .bashrc (source <path>/auto_venv.sh)
 
 if [[ -d /opt/python/bin ]] ; then
   export AUTO_VENV_PYTHON_SEARCH_PATH="/opt/python/bin"
 fi
 if [[ -z $AUTO_VENV_PYTHON_SEARCH_PATH ]] ; then
-  echo "[auto_venv] Veuillez spécifier le chemin de recherche des versions
-de python avec la variable AUTO_VENV_PYTHON_SEARCH_PATH."
+  echo "Please specify the search path for python versions
+with the variable AUTO_VENV_PYTHON_SEARCH_PATH."
 fi
 
 __find_auto_venv_file() {
@@ -19,79 +13,91 @@ __find_auto_venv_file() {
   while [ "$current_dir" != "/" ]; do
     local file_path="$current_dir/.auto_venv"
     if [ -f "$file_path" ]; then
-      . "$file_path"
+      AUTO_VENV_BASE_DIR=$current_dir
+      AUTO_VENV_PATH=$(cat "$file_path")
+      if [[ "$AUTO_VENV_PATH" != /* ]] ; then
+        AUTO_VENV="$AUTO_VENV_BASE_DIR/$AUTO_VENV_PATH"
+      else
+        AUTO_VENV="$AUTO_VENV_PATH"
+      fi
+      return
     fi
     current_dir=$(dirname "$current_dir")
   done
+  __auto_venv_deactivate
 }
 
 function __auto_venv_show() {
   if [[ ! -z "$AUTO_VENV" ]] ; then
     echo -n "[auto_venv] $AUTO_VENV"
     if [[ ! -z "$VIRTUAL_ENV" ]] ; then
-      echo " activé (`python --version 2>& 1`)"
+      echo " activated (`python --version 2>& 1`)"
     else
-      echo " désactivé"
+      echo " deactivated"
     fi
+    if [[ $PWD != "$AUTO_VENV_BASE_DIR" ]]; then
+      echo "Use 'auto_venv --new' to create a new auto_venv."
+    fi
+  else
+    echo "No auto_venv found."
+    echo "Use 'auto_venv --new' to create a new auto_venv."
   fi
 }
 
 function __auto_venv_activate() {
-  if [ ! -z $AUTO_VENV ] ; then
+  if [ ! -z "$AUTO_VENV" ] ; then
     source "$AUTO_VENV/bin/activate"
-    if [ "$OLD_AUTO_VENV" != "$AUTO_VENV" ] ; then
+    if [[ "$OLD_AUTO_VENV_BASE_DIR" != "$AUTO_VENV_BASE_DIR" || -z "$OLD_AUTO_VENV_BASE_DIR" ]] ; then
       __auto_venv_show
     fi
   fi
 }
 
+function __auto_venv_deactivate() {
+  unset AUTO_VENV
+  unset AUTO_VENV_BASE_DIR
+  unset OLD_AUTO_VENV_BASE_DIR
+}
+
 function cd() {
   builtin cd "$@"
-  OLD_AUTO_VENV=$AUTO_VENV
+  OLD_AUTO_VENV_BASE_DIR=$AUTO_VENV_BASE_DIR
   unset AUTO_VENV
   __find_auto_venv_file
   if [[ -z "$VIRTUAL_ENV" ]] ; then
     __auto_venv_activate
   else
-    if [[ "$PWD" != `dirname "$AUTO_VENV"`* ]] ; then
+    if [[ "$AUTO_VENV_BASE_DIR" != "$OLD_AUTO_VENV_BASE_DIR"* || -z "$AUTO_VENV_BASE_DIR" ]] ; then
       deactivate
     fi
-    if [[ "$VIRTUAL_ENV" != "$AUTO_VENV" && ! -z "$AUTO_VENV" ]] ; then
+    if [[ "$AUTO_VENV_BASE_DIR" != "$OLD_AUTO_VENV_BASE_DIR" && ! -z "$AUTO_VENV" ]] ; then
       __auto_venv_activate
     fi
   fi
 }
 
 function auto_venv() {
-  if [[ -z "$AUTO_VENV" ]] ; then
+  if [[ "$1" == "--new" ]] ; then
     echo "Versions Python disponibles :"
     ls "$AUTO_VENV_PYTHON_SEARCH_PATH"
     VENV_MODULE="venv"
-    read -p "Version à utiliser pour l'environnement virtuel ? " PYTHON_VERSION
+    read -p "Python version to use? " PYTHON_VERSION
     ls "$AUTO_VENV_PYTHON_SEARCH_PATH/$PYTHON_VERSION"
     if [[ $PYTHON_VERSION == "python"* ]] ; then
       if [[ $? != 0 ]] ; then
-        echo "Veuillez choisir une version de Python parmi celles proposées."
+        echo "Please choose a Python version among those proposed."
         exit 1
       fi
     fi
     if [[ "$PYTHON_VERSION" == "python2.7" ]] ; then
       VENV_MODULE="virtualenv"
     fi
-    read -p "Chemin de l'environnement virtuel : " VENV_PATH
+    read -p "Virtual environment path [.]: " VENV_PATH
     if [ -z "$VENV_PATH" ] ; then
       VENV_PATH='.'
     fi
     $AUTO_VENV_PYTHON_SEARCH_PATH/$PYTHON_VERSION -m $VENV_MODULE "$VENV_PATH"
-    if [[ "$VENV_PATH" == '' || "$VENV_PATH" == '.' ]] ; then
-      AUTO_VENV=$PWD
-    fi
-    if [[ "$VENV_PATH" != /* ]] ; then
-      AUTO_VENV="$PWD/$VENV_PATH"
-    else
-      AUTO_VENV="$VENV_PATH"
-    fi
-    echo "AUTO_VENV=\"$AUTO_VENV\"" > "$PWD/.auto_venv"
+    echo "$VENV_PATH" > "$PWD/.auto_venv"
     __auto_venv_activate
   else
     __auto_venv_show
