@@ -9,6 +9,9 @@ with the variable AUTO_VENV_PYTHON_SEARCH_PATH."
 fi
 
 __find_auto_venv_file() {
+  # Function to find the .auto_venv conf file from the current directory up to the root.
+  # Triggers __auto_venv_deactivate if no .auto_venv is found.
+
   local current_dir="$PWD"
   while [ "$current_dir" != "/" ]; do
     local file_path="$current_dir/.auto_venv"
@@ -35,12 +38,6 @@ function __auto_venv_show() {
     else
       echo " deactivated"
     fi
-    if [[ $PWD != "$AUTO_VENV_BASE_DIR" ]]; then
-      echo "Use 'auto_venv --new' to create a new auto_venv."
-    fi
-  else
-    echo "No auto_venv found."
-    echo "Use 'auto_venv --new' to create a new auto_venv."
   fi
 }
 
@@ -67,7 +64,7 @@ function cd() {
   if [[ -z "$VIRTUAL_ENV" ]] ; then
     __auto_venv_activate
   else
-    if [[ "$AUTO_VENV_BASE_DIR" != "$OLD_AUTO_VENV_BASE_DIR"* || -z "$AUTO_VENV_BASE_DIR" ]] ; then
+    if [[ ! -z "$OLD_AUTO_VENV_BASE_DIR"* && -z "$AUTO_VENV_BASE_DIR" ]] ; then
       deactivate
     fi
     if [[ "$AUTO_VENV_BASE_DIR" != "$OLD_AUTO_VENV_BASE_DIR" && ! -z "$AUTO_VENV" ]] ; then
@@ -98,8 +95,15 @@ function auto_venv() {
     fi
     $AUTO_VENV_PYTHON_SEARCH_PATH/$PYTHON_VERSION -m $VENV_MODULE "$VENV_PATH"
     echo "$VENV_PATH" > "$PWD/.auto_venv"
+    __find_auto_venv_file
     __auto_venv_activate
   else
     __auto_venv_show
+    if [ -z $AUTO_VENV ]; then
+      echo "No auto_venv found."
+    fi
+    if [[ "$AUTO_VENV_BASE_DIR" != "$PWD" ]]; then
+      echo "Use 'auto_venv --new' to create a new auto_venv in $PWD."
+    fi
   fi
 }
