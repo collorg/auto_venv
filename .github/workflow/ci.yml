@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y shellcheck
+    
+    - name: Make test script executable
+      run: chmod +x test_auto_venv.sh
+    
+    - name: Run shell script linting
+      run: |
+        shellcheck auto_venv.sh
+        shellcheck test_auto_venv.sh
+    
+    - name: Run tests
+      run: ./test_auto_venv.sh
+    
+    - name: Test installation process
+      run: |
+        # Test that the script can be sourced without errors
+        bash -c "source ./auto_venv.sh && echo 'Script sourced successfully'"
+    
+    - name: Test with different Python versions
+      run: |
+        # Verify Python version is available
+        python${{ matrix.python-version }} --version
+        # Test virtual environment creation
+        python${{ matrix.python-version }} -m venv test_venv
+        rm -rf test_venv
+
+  compatibility:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-20.04]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Test script compatibility
+      run: |
+        chmod +x test_auto_venv.sh
+        bash --version
+        ./test_auto_venv.sh
