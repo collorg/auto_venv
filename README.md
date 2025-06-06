@@ -29,9 +29,9 @@ echo "source $(pwd)/auto_venv.sh" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-3. Set the Python search path (if not using `/opt/python/bin`):
+3. Optionally, set the Python search path (`/usr/bin` by default):
 ```bash
-export AUTO_VENV_PYTHON_SEARCH_PATH="/usr/bin"  # or your Python installation path
+export AUTO_VENV_PYTHON_SEARCH_PATH="/opt/python/bin"  # your Python installation path
 ```
 
 ## Usage
@@ -92,7 +92,7 @@ The `.auto_venv` file contains a single line with the path to your virtual envir
 Set the `AUTO_VENV_PYTHON_SEARCH_PATH` environment variable to specify where Python versions are located:
 
 ```bash
-export AUTO_VENV_PYTHON_SEARCH_PATH="/usr/bin"
+export AUTO_VENV_PYTHON_SEARCH_PATH="/usr/bin" # default
 # or
 export AUTO_VENV_PYTHON_SEARCH_PATH="/opt/python/bin"
 ```
