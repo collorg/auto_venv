@@ -33,6 +33,8 @@ source ~/.bashrc
 ```bash
 export AUTO_VENV_PYTHON_SEARCH_PATH="/opt/python/bin"  # your Python installation path
 ```
+**IMPORTANT**: make sure you set the variable before the line  `source $(pwd)/auto_venv.sh` in
+your `.bashrc` file.
 
 ## Usage
 
@@ -124,16 +126,6 @@ echo "/home/user/shared-env" > .auto_venv
 4. If a different environment should be active, it switches environments
 5. If leaving a project directory tree, it deactivates the current environment
 
-## Comparison with other tools
-
-| Feature | auto_venv | direnv | autoenv | pipenv auto |
-|---------|-----------|--------|---------|-------------|
-| Single file config | ✅ | ❌ | ✅ | ❌ |
-| Python-specific | ✅ | ❌ | ❌ | ✅ |
-| Multiple Python versions | ✅ | Manual | Manual | ❌ |
-| Bash only | ✅ | ❌ | ✅ | ❌ |
-| Lightweight | ✅ | ❌ | ✅ | ❌ |
-
 ## Requirements
 
 - Bash shell
@@ -156,7 +148,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 - Verify that `AUTO_VENV_PYTHON_SEARCH_PATH` is set correctly
 
 ### Python version not found
-- List available versions: `ls $AUTO_VENV_PYTHON_SEARCH_PATH`
+- List available versions: `ls $AUTO_VENV_PYTHON_SEARCH_PATH | grep -E '^python[23]\.?[0-9]*$'`
 - Update `AUTO_VENV_PYTHON_SEARCH_PATH` to point to your Python installation directory
 
 ### Script not working after installation
