@@ -27,10 +27,10 @@ __find_auto_venv_file() {
 }
 
 function __auto_venv_show() {
-  if [[ ! -z "$AUTO_VENV" ]] ; then
+  if [[ -n "$AUTO_VENV" ]] ; then
     echo -n "[auto_venv] $AUTO_VENV"
-    if [[ ! -z "$VIRTUAL_ENV" ]] ; then
-      echo " activated (`python --version 2>& 1`)"
+    if [[ -n "$VIRTUAL_ENV" ]] ; then
+      echo " activated ($(python --version 2>& 1))"
     else
       echo " deactivated"
     fi
@@ -38,7 +38,7 @@ function __auto_venv_show() {
 }
 
 function __auto_venv_activate() {
-  if [ ! -z "$AUTO_VENV" ] ; then
+  if [ -n "$AUTO_VENV" ] ; then
     source "$AUTO_VENV/bin/activate"
     if [[ "$OLD_AUTO_VENV_BASE_DIR" != "$AUTO_VENV_BASE_DIR" || -z "$OLD_AUTO_VENV_BASE_DIR" ]] ; then
       __auto_venv_show
@@ -53,17 +53,17 @@ function __auto_venv_deactivate() {
 }
 
 function cd() {
-  builtin cd "$@"
+  builtin cd "$@" || exit
   OLD_AUTO_VENV_BASE_DIR=$AUTO_VENV_BASE_DIR
   unset AUTO_VENV
   __find_auto_venv_file
   if [[ -z "$VIRTUAL_ENV" ]] ; then
     __auto_venv_activate
   else
-    if [[ ! -z "$OLD_AUTO_VENV_BASE_DIR"* && -z "$AUTO_VENV_BASE_DIR" ]] ; then
+    if [[ -n "$OLD_AUTO_VENV_BASE_DIR"* && -z "$AUTO_VENV_BASE_DIR" ]] ; then
       deactivate
     fi
-    if [[ "$AUTO_VENV_BASE_DIR" != "$OLD_AUTO_VENV_BASE_DIR" && ! -z "$AUTO_VENV" ]] ; then
+    if [[ "$AUTO_VENV_BASE_DIR" != "$OLD_AUTO_VENV_BASE_DIR" && -n "$AUTO_VENV" ]] ; then
       __auto_venv_activate
     fi
   fi
@@ -95,7 +95,7 @@ function auto_venv() {
     __auto_venv_activate
   else
     __auto_venv_show
-    if [ -z $AUTO_VENV ]; then
+    if [ -z "$AUTO_VENV" ]; then
       echo "No auto_venv found."
     fi
     if [[ "$AUTO_VENV_BASE_DIR" != "$PWD" ]]; then
