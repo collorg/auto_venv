@@ -1,11 +1,7 @@
 # Script auto_venv.sh to be activated in .bashrc (source <path>/auto_venv.sh)
 
-if [[ -d /opt/python/bin ]] ; then
-  export AUTO_VENV_PYTHON_SEARCH_PATH="/opt/python/bin"
-fi
 if [[ -z $AUTO_VENV_PYTHON_SEARCH_PATH ]] ; then
-  echo "Please specify the search path for python versions
-with the variable AUTO_VENV_PYTHON_SEARCH_PATH."
+  export AUTO_VENV_PYTHON_SEARCH_PATH="/usr/bin"
 fi
 
 __find_auto_venv_file() {
@@ -76,10 +72,10 @@ function cd() {
 function auto_venv() {
   if [[ "$1" == "--new" ]] ; then
     echo "Versions Python disponibles :"
-    ls "$AUTO_VENV_PYTHON_SEARCH_PATH"
+    ls "$AUTO_VENV_PYTHON_SEARCH_PATH" | grep -E '^python[23]\.?[0-9]*$'
     VENV_MODULE="venv"
     read -p "Python version to use? " PYTHON_VERSION
-    ls "$AUTO_VENV_PYTHON_SEARCH_PATH/$PYTHON_VERSION"
+    ls "$AUTO_VENV_PYTHON_SEARCH_PATH/$PYTHON_VERSION" | grep -E '^python[23]\.?[0-9]*$'
     if [[ $PYTHON_VERSION == "python"* ]] ; then
       if [[ $? != 0 ]] ; then
         echo "Please choose a Python version among those proposed."
