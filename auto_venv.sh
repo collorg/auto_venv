@@ -22,15 +22,18 @@ __parse_auto_venv_file() {
   fi
   
   # Check if it's the old format (single line)
-  local line_count=$(wc -l < "$file_path")
-  local first_line=$(head -n1 "$file_path" | tr -d '\n\r' | xargs)
+  local line_count
+  local first_line
+  line_count=$(wc -l < "$file_path")
+  first_line=$(head -n1 "$file_path" | tr -d '\n\r' | xargs)
   
   if [[ $line_count -eq 1 && ! "$first_line" =~ : ]]; then
     # Old format - convert it to new format
     echo "[auto_venv] Converting old format .auto_venv file to multi-environment format"
     
     # Create new format file
-    local temp_file=$(mktemp)
+    local temp_file
+    temp_file=$(mktemp)
     echo "default:$first_line" > "$temp_file"
     echo "python:$first_line" >> "$temp_file"
     
@@ -122,7 +125,14 @@ __validate_venv() {
   # or that it's a valid Python 2.7 virtualenv
   if [[ ! -f "$venv_path/pyvenv.cfg" ]]; then
     # Could be a Python 2.7 virtualenv, check the structure
-    if [[ ! -f "$venv_path/lib/python2.7/site.py" && ! -d "$venv_path/lib/python"* ]]; then
+    # Use a loop to handle the glob properly
+    local has_python_lib=false
+    for _ in "$venv_path"/lib/python*; do
+      has_python_lib=true
+      break
+    done
+    
+    if [[ ! -f "$venv_path/lib/python2.7/site.py" && "$has_python_lib" == false ]]; then
       return 1
     fi
   fi
@@ -196,13 +206,13 @@ __find_auto_venv_file() {
 }
 
 function __auto_venv_show() {
-  if [[ ! -z "$AUTO_VENV" ]] ; then
+  if [[ -n "$AUTO_VENV" ]] ; then
     echo -n "[auto_venv] $AUTO_VENV"
     if [[ -n "$AUTO_VENV_SELECTED" && "$AUTO_VENV_SELECTED" != "default" ]]; then
       echo -n " ($AUTO_VENV_SELECTED)"
     fi
-    if [[ ! -z "$VIRTUAL_ENV" ]] ; then
-      echo " activated (`python --version 2>&1`)"
+    if [[ -n "$VIRTUAL_ENV" ]] ; then
+      echo " activated ($(python --version 2>&1))"
     else
       echo " found but not activated"
     fi
@@ -210,9 +220,10 @@ function __auto_venv_show() {
 }
 
 function __auto_venv_activate() {
-  if [ ! -z "$AUTO_VENV" ] ; then
+  if [ -n "$AUTO_VENV" ] ; then
     # Double check before activation
     if __validate_venv "$AUTO_VENV"; then
+      # shellcheck disable=SC1091
       source "$AUTO_VENV/bin/activate"
       if [[ "$OLD_AUTO_VENV_BASE_DIR" != "$AUTO_VENV_BASE_DIR" || -z "$OLD_AUTO_VENV_BASE_DIR" ]] ; then
         __auto_venv_show
@@ -226,8 +237,8 @@ function __auto_venv_activate() {
 
 function __auto_venv_deactivate() {
   # Deactivate virtual environment if active
-  if [[ ! -z "$VIRTUAL_ENV" ]]; then
-    deactivate 2> /dev/null
+  if [[ -n "$VIRTUAL_ENV" ]]; then
+    deactivate
   fi
   
   unset AUTO_VENV
@@ -240,7 +251,7 @@ function __auto_venv_deactivate() {
 }
 
 function cd() {
-  builtin cd "$@"
+  builtin cd "$@" || return
   OLD_AUTO_VENV_BASE_DIR=$AUTO_VENV_BASE_DIR
   unset AUTO_VENV
   
@@ -248,7 +259,7 @@ function cd() {
   __find_auto_venv_file
   
   # If we found a valid environment and it's different from the previous one
-  if [[ ! -z "$AUTO_VENV" && "$AUTO_VENV_BASE_DIR" != "$OLD_AUTO_VENV_BASE_DIR" ]]; then
+  if [[ -n "$AUTO_VENV" && "$AUTO_VENV_BASE_DIR" != "$OLD_AUTO_VENV_BASE_DIR" ]]; then
     __auto_venv_activate
   fi
 }
@@ -274,7 +285,8 @@ function auto_venv() {
     local available_pythons=()
     for python_exec in "$AUTO_VENV_PYTHON_SEARCH_PATH"/python*; do
       if [[ -x "$python_exec" && "$python_exec" =~ python[23](\.[0-9]+)?$ ]]; then
-        local version_name=$(basename "$python_exec")
+        local version_name
+        version_name=$(basename "$python_exec")
         if __validate_python_version "$version_name"; then
           available_pythons+=("$version_name")
           
@@ -295,7 +307,7 @@ function auto_venv() {
     fi
     
     VENV_MODULE="venv"
-    read -p "Python version to use? " PYTHON_VERSION
+    read -r -p "Python version to use? " PYTHON_VERSION
     
     # If no environment name specified, use Python version
     if [[ -z "$env_name" ]]; then
@@ -311,7 +323,7 @@ function auto_venv() {
     fi
     
     # Enhanced Python version validation
-    if [[ ! " ${available_pythons[*]} " =~ " $PYTHON_VERSION " ]]; then
+    if [[ ! "${available_pythons[*]}" =~ ${PYTHON_VERSION} ]]; then
       echo "[auto_venv] Error: '$PYTHON_VERSION' is not available. Please choose from: ${available_pythons[*]}" >&2
       return 1
     fi
@@ -331,7 +343,7 @@ function auto_venv() {
       fi
     fi
     
-    read -p "Virtual environment path [.venv_${env_name//[.\/]/_}]: " VENV_PATH
+    read -r -p "Virtual environment path [.venv_${env_name//[.\/]/_}]: " VENV_PATH
     if [ -z "$VENV_PATH" ] ; then
       VENV_PATH=".venv_${env_name//[.\/]/_}"
     fi
@@ -339,7 +351,7 @@ function auto_venv() {
     # Check if directory already exists
     if [[ -d "$VENV_PATH" && -n "$(ls -A "$VENV_PATH" 2>/dev/null)" ]]; then
       echo "[auto_venv] Warning: Directory '$VENV_PATH' already exists and is not empty"
-      read -p "Continue anyway? [y/N]: " confirm
+      read -r -p "Continue anyway? [y/N]: " confirm
       if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
         echo "[auto_venv] Cancelled"
         return 1
@@ -395,7 +407,7 @@ function auto_venv() {
     AUTO_VENV_PREFERRED="$2"
     
     # Deactivate current environment if necessary
-    if [[ ! -z "$VIRTUAL_ENV" ]]; then
+    if [[ -n "$VIRTUAL_ENV" ]]; then
       deactivate
     fi
     
@@ -456,7 +468,8 @@ function auto_venv() {
     
     # Rewrite file with new default
     local auto_venv_file="$AUTO_VENV_BASE_DIR/.auto_venv"
-    local temp_file=$(mktemp)
+    local temp_file
+    temp_file=$(mktemp)
     
     echo "default:${AUTO_VENV_ENVIRONMENTS[$env_to_default]}" > "$temp_file"
     for env in "${!AUTO_VENV_ENVIRONMENTS[@]}"; do
