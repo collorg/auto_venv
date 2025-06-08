@@ -1,0 +1,52 @@
+#!/bin/sh
+# auto_venv - Universal dispatcher for auto_venv
+
+# Get the directory containing this script
+if [ -n "${BASH_SOURCE[0]}" ]; then
+    # Bash
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+elif [ -n "$ZSH_VERSION" ]; then
+    # Zsh - ${0:A:h} already gives the absolute directory
+    SCRIPT_DIR="${0:A:h}"
+else
+    # POSIX fallback
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+fi
+
+# Detect shell and source appropriate implementation
+if [ -n "$BASH_VERSION" ]; then
+    # Bash detected
+    if [ -f "$SCRIPT_DIR/auto_venv.sh" ]; then
+        . "$SCRIPT_DIR/auto_venv.sh"
+    else
+        echo "Error: auto_venv.sh not found in $SCRIPT_DIR" >&2
+        return 1 2>/dev/null || exit 1
+    fi
+elif [ -n "$ZSH_VERSION" ]; then
+    # Zsh detected
+    if [ -f "$SCRIPT_DIR/auto_venv.zsh" ]; then
+        . "$SCRIPT_DIR/auto_venv.zsh"
+    else
+        # Fallback to bash version which should work in zsh
+        if [ -f "$SCRIPT_DIR/auto_venv.sh" ]; then
+            . "$SCRIPT_DIR/auto_venv.sh"
+        else
+            echo "Error: auto_venv.zsh or auto_venv.sh not found in $SCRIPT_DIR" >&2
+            return 1
+        fi
+    fi
+elif [ -n "$FISH_VERSION" ]; then
+    # Fish detected - cannot source POSIX script from Fish
+    echo "Error: Fish shell detected" >&2
+    echo "Please add this line to your config.fish instead:" >&2
+    echo "  source $SCRIPT_DIR/auto_venv.fish" >&2
+    return 1 2>/dev/null || exit 1
+else
+    # Generic POSIX shell - use bash version
+    if [ -f "$SCRIPT_DIR/auto_venv.sh" ]; then
+        . "$SCRIPT_DIR/auto_venv.sh"
+    else
+        echo "Error: auto_venv.sh not found in $SCRIPT_DIR" >&2
+        return 1 2>/dev/null || exit 1
+    fi
+fi

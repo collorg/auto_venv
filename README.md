@@ -1,13 +1,14 @@
 # auto_venv
 
-Automatic Python virtual environment activation with multi-environment support based on .auto_venv files when changing directories.
+Automatic Python virtual environment activation with multi-environment and multi-shell support based on .auto_venv files when changing directories.
 
 ## Overview
 
-`auto_venv` is a lightweight bash script that automatically activates and deactivates Python virtual environments as you navigate between project directories. It uses `.auto_venv` configuration files to determine which virtual environment should be active in each directory tree. The script now supports multiple Python environments per project, allowing easy switching between different Python versions.
+`auto_venv` is a lightweight shell tool that automatically activates and deactivates Python virtual environments as you navigate between project directories. It uses `.auto_venv` configuration files to determine which virtual environment should be active in each directory tree. The tool now supports multiple Python environments per project and works seamlessly across Bash, Zsh, and Fish shells.
 
 ## Features
 
+- **Multi-shell support** - Works with Bash, Zsh, and Fish shells
 - **Automatic activation/deactivation** when changing directories
 - **Multi-environment support** - manage multiple Python versions per project
 - **Automatic format conversion** from old single-environment to new multi-environment format
@@ -15,11 +16,13 @@ Automatic Python virtual environment activation with multi-environment support b
 - **Recursive search** for `.auto_venv` files up the directory tree
 - **Multiple Python versions** support (Python 2.7 with virtualenv, Python 3+ with venv)
 - **Flexible paths** (relative or absolute paths in .auto_venv files)
-- **Simple setup** with a single bash script
+- **Universal installation** - single install script for all shells
 - **Visual feedback** showing current environment status
 - **Environment validation** to ensure virtual environments are properly configured
 
 ## Installation
+
+### Automatic Installation (Recommended)
 
 1. Clone this repository:
 ```bash
@@ -27,18 +30,39 @@ git clone https://github.com/collorg/auto_venv.git
 cd auto_venv
 ```
 
-2. Source the script in your `.bashrc`:
+2. Run the installation script:
 ```bash
-echo "source $(pwd)/auto_venv.sh" >> ~/.bashrc
-source ~/.bashrc
+./install.sh
 ```
 
-3. Optionally, set the Python search path (`/usr/bin` by default):
+This will automatically:
+- Detect all installed shells (Bash, Zsh, Fish)
+- Add the appropriate configuration to each shell's RC file
+- Configure the universal dispatcher for Bash and Zsh
+- Set up direct sourcing for Fish
+
+3. Reload your shell or start a new terminal session
+
+### Manual Installation
+
+For Bash or Zsh:
+```bash
+echo "source $(pwd)/auto_venv" >> ~/.bashrc   # For Bash
+echo "source $(pwd)/auto_venv" >> ~/.zshrc    # For Zsh
+```
+
+For Fish:
+```bash
+echo "source $(pwd)/auto_venv.fish" >> ~/.config/fish/config.fish
+```
+
+### Configuration
+
+Optionally, set the Python search path (`/usr/bin` by default):
 ```bash
 export AUTO_VENV_PYTHON_SEARCH_PATH="/opt/python/bin"  # your Python installation path
 ```
-**IMPORTANT**: make sure you set the variable before the line  `source $(pwd)/auto_venv.sh` in
-your `.bashrc` file.
+**IMPORTANT**: For Bash/Zsh, make sure you set this variable before the `source` line in your RC file.
 
 ## Usage
 
@@ -205,6 +229,18 @@ echo "shared:/home/user/shared-env" >> .auto_venv
 # Both projects now share the same virtual environment
 ```
 
+### Example 5: Working across different shells
+```bash
+# Setup in any shell
+cd ~/my-project
+auto_venv --new
+
+# Works seamlessly when switching shells
+bash    # Enters bash - environment activated automatically
+zsh     # Switch to zsh - environment still active
+fish    # Switch to fish - environment remains active
+```
+
 ## Command Reference
 
 - `auto_venv` - Show current environment status
@@ -216,20 +252,36 @@ echo "shared:/home/user/shared-env" >> .auto_venv
 - `auto_venv --validate` - Validate the current environment
 - `auto_venv --help` - Show help message
 
+## File Structure
+
+```
+auto_venv/
+├── auto_venv          # Universal dispatcher (detects shell and loads appropriate version)
+├── auto_venv.sh       # Bash/POSIX implementation
+├── auto_venv.zsh      # Zsh implementation (uses chpwd hook)
+├── auto_venv.fish     # Fish implementation (uses PWD event)
+├── install.sh         # Universal installation script
+├── test_auto_venv.sh  # Test suite
+└── README.md          # This file
+```
+
 ## How it works
 
-1. When you change directories (`cd`), the script searches for a `.auto_venv` file in the current directory and all parent directories
-2. If found, it parses the file to get available environments
-3. It selects the appropriate environment (preferred, default, or first available)
-4. If no virtual environment is currently active, it activates the selected environment
-5. If a different environment should be active, it switches environments
-6. If leaving a project directory tree, it deactivates the current environment
+1. The universal dispatcher (`auto_venv`) automatically detects your shell and sources the appropriate implementation
+2. When you change directories (`cd` in Bash, `chpwd` hook in Zsh, or PWD change in Fish), the script searches for a `.auto_venv` file in the current directory and all parent directories
+3. If found, it parses the file to get available environments
+4. It selects the appropriate environment (preferred, default, or first available)
+5. If no virtual environment is currently active, it activates the selected environment
+6. If a different environment should be active, it switches environments
+7. If leaving a project directory tree, it deactivates the current environment
 
 ## Requirements
 
-- Bash shell
-- Python (2.7+ or 3.x)
-- `virtualenv` (for Python 2.7) or `venv` (for Python 3+)
+- **Supported shells**: Bash, Zsh, or Fish
+- **Python**: 2.7+ or 3.x
+- **Python packages**:
+  - `virtualenv` (for Python 2.7)
+  - `venv` module (built-in for Python 3.3+)
 
 ## Migration from Old Format
 
@@ -245,6 +297,26 @@ Automatically converted to:
 default:./venv
 python:./venv
 ```
+
+## Upgrading from Previous Versions
+
+If you were using an older version of auto_venv:
+
+1. The new version is backward compatible - your existing `.auto_venv` files will work
+2. The universal dispatcher means you only need one `source` line in your RC files
+3. Run `install.sh` to automatically update all your shell configurations
+4. Old reference to `auto_venv.sh` should be updated to just `auto_venv`
+
+## Why auto_venv?
+
+Unlike other virtual environment managers, auto_venv offers:
+
+- **True multi-shell support**: Native implementations for Bash, Zsh, and Fish
+- **Zero learning curve**: Just `cd` into your project
+- **Multi-environment per project**: Test across Python versions easily  
+- **No dependencies**: Pure shell implementation
+- **Automatic conversion**: Upgrades your existing setups automatically
+- **Universal interface**: Same commands work across all shells
 
 ## Contributing
 
@@ -263,7 +335,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 - Verify that `AUTO_VENV_PYTHON_SEARCH_PATH` is set correctly
 
 ### Python version not found
-- List available versions: `ls $AUTO_VENV_PYTHON_SEARCH_PATH | grep -E '^python[23]\.?[0-9]*$'`
+- List available versions: `ls $AUTO_VENV_PYTHON_SEARCH_PATH | grep -E '^python[23]\.?[0-9]*`
 - Update `AUTO_VENV_PYTHON_SEARCH_PATH` to point to your Python installation directory
 
 ### Environment already configured
@@ -271,7 +343,24 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 - Use `auto_venv --switch <name>` to activate an existing environment
 - Environment names must be unique within a project
 
-### Script not working after installation
-- Ensure you've sourced your `.bashrc`: `source ~/.bashrc`
-- Check that the script path in `.bashrc` is correct
+### Shell-specific issues
+
+#### Script not working after installation
+- Ensure you've reloaded your shell configuration:
+  - Bash: `source ~/.bashrc`
+  - Zsh: `source ~/.zshrc`
+  - Fish: `source ~/.config/fish/config.fish`
 - Verify that the script has been loaded: `type auto_venv`
+
+#### Fish shell errors
+- Fish requires direct sourcing of `auto_venv.fish`, not the universal dispatcher
+- Make sure your `config.fish` contains: `source /path/to/auto_venv.fish`
+
+#### Zsh command not found
+- Ensure the auto_venv directory is in a stable location
+- Check that the path in `.zshrc` is absolute, not relative
+
+#### Performance issues
+- In Zsh, the `chpwd` hook is called on every directory change
+- In Fish, the PWD watcher runs on every directory change
+- Consider disabling in directories with heavy I/O if needed
