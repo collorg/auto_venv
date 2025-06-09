@@ -364,3 +364,10 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 - In Zsh, the `chpwd` hook is called on every directory change
 - In Fish, the PWD watcher runs on every directory change
 - Consider disabling in directories with heavy I/O if needed
+
+## Development Process
+
+This project was developed using AI-assisted programming. 
+See [DEVELOPMENT.md](DEVELOPMENT.md) for details on the development process
+and how AI tools were used to accelerate development while maintaining
+code quality and human oversight.
