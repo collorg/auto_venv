@@ -27,7 +27,7 @@ jobs:
         sudo apt-get install -y shellcheck
     
     - name: Make test script executable
-      run: chmod +x test_auto_venv.sh
+      run: chmod +x test/test_auto_venv.sh
     
     - name: Run shell script linting
       run: |
@@ -35,7 +35,7 @@ jobs:
         # shellcheck test_auto_venv.sh
     
     - name: Run tests
-      run: ./test_auto_venv.sh
+      run: ./test/test_auto_venv.sh
     
     - name: Test installation process
       run: |
@@ -61,6 +61,6 @@ jobs:
     
     - name: Test script compatibility
       run: |
-        chmod +x test_auto_venv.sh
+        chmod +x test/test_auto_venv.sh
         bash --version
-        ./test_auto_venv.sh
+        ./test/test_auto_venv.sh
