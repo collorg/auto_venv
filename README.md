@@ -46,11 +46,29 @@ cd auto_venv
 ./install.sh
 ```
 
-This will automatically:
+The installation script will:
+- Ask for your Python search path (default: `/usr/bin`)
 - Detect all installed shells (Bash, Zsh, Fish)
-- Add the appropriate configuration to each shell's RC file
+- Add the Python search path to each shell's RC file
+- Add the appropriate `source` command to each shell's RC file
 - Configure the universal dispatcher for Bash and Zsh
 - Set up direct sourcing for Fish
+
+Example installation:
+```
+$ ./install.sh
+Installing auto_venv...
+Enter python search path [/usr/bin]: /opt/homebrew/bin
+/opt/homebrew/bin
+Detecting installed shells...
+✓ Added auto_venv to /home/user/.bashrc (Bash)
+✓ Added auto_venv to /home/user/.zshrc (Zsh)
+✓ Added auto_venv to /home/user/.config/fish/config.fish (Fish)
+✓ Added auto_venv to /home/user/.profile (POSIX sh)
+
+Installation complete! auto_venv was added to 4 shell configuration(s).
+Reload your shell or run 'source <rc_file>' to activate.
+```
 
 3. Reload your shell or start a new terminal session
 
@@ -58,22 +76,39 @@ This will automatically:
 
 For Bash or Zsh:
 ```bash
+# Add Python search path (if different from /usr/bin)
+echo "AUTO_VENV_PYTHON_SEARCH_PATH=/opt/python/bin" >> ~/.bashrc  # For Bash
+echo "AUTO_VENV_PYTHON_SEARCH_PATH=/opt/python/bin" >> ~/.zshrc   # For Zsh
+
+# Add source command
 echo "source $(pwd)/auto_venv" >> ~/.bashrc   # For Bash
 echo "source $(pwd)/auto_venv" >> ~/.zshrc    # For Zsh
 ```
 
 For Fish:
 ```bash
+# Add Python search path (if different from /usr/bin)
+echo 'set AUTO_VENV_PYTHON_SEARCH_PATH "/opt/python/bin"' >> ~/.config/fish/config.fish
+
+# Add source command
 echo "source $(pwd)/auto_venv.fish" >> ~/.config/fish/config.fish
 ```
 
 ### Configuration
 
-Optionally, set the Python search path (`/usr/bin` by default):
+The Python search path is configured during installation. To change it later:
+
+For Bash/Zsh:
 ```bash
 export AUTO_VENV_PYTHON_SEARCH_PATH="/opt/python/bin"  # your Python installation path
 ```
-**IMPORTANT**: For Bash/Zsh, make sure you set this variable before the `source` line in your RC file.
+
+For Fish:
+```fish
+set AUTO_VENV_PYTHON_SEARCH_PATH "/opt/python/bin"
+```
+
+**Note**: Make sure this variable is set before the `source` line in your RC file.
 
 ## Usage
 
@@ -322,7 +357,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 - Verify that `AUTO_VENV_PYTHON_SEARCH_PATH` is set correctly
 
 ### Python version not found
-- List available versions: `ls $AUTO_VENV_PYTHON_SEARCH_PATH | grep -E '^python[23]\.?[0-9]*`
+- List available versions: `ls $AUTO_VENV_PYTHON_SEARCH_PATH | grep -E '^python[23]\.?[0-9]*$'`
 - Update `AUTO_VENV_PYTHON_SEARCH_PATH` to point to your Python installation directory
 
 ### Environment already configured
