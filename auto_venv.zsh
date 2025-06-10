@@ -247,6 +247,7 @@ function __auto_venv_deactivate() {
   unset AUTO_VENV_DEFAULT
   unset AUTO_VENV_SELECTED
   unset OLD_AUTO_VENV_BASE_DIR
+  unset AUTO_VENV_PREFERRED
 }
 
 # Use Zsh's chpwd hook instead of overriding cd
@@ -259,6 +260,7 @@ function chpwd() {
   
   # If we found a valid environment and it's different from the previous one
   if [[ -n "$AUTO_VENV" && "$AUTO_VENV_BASE_DIR" != "$OLD_AUTO_VENV_BASE_DIR" ]]; then
+    unset AUTO_VENV_PREFERRED
     __auto_venv_activate
   fi
 }

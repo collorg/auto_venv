@@ -267,6 +267,7 @@ function __auto_venv_deactivate
     set -e AUTO_VENV_DEFAULT
     set -e AUTO_VENV_SELECTED
     set -e OLD_AUTO_VENV_BASE_DIR
+    set -e AUTO_VENV_PREFERRED
 end
 
 # Hook for directory changes in Fish
@@ -279,6 +280,7 @@ function __auto_venv_on_pwd --on-variable PWD
     
     # If we found a valid environment and it's different from the previous one
     if test -n "$AUTO_VENV" -a "$AUTO_VENV_BASE_DIR" != "$OLD_AUTO_VENV_BASE_DIR"
+        set -e AUTO_VENV_PREFERRED
         __auto_venv_activate
     end
 end

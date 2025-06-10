@@ -248,13 +248,15 @@ function __auto_venv_deactivate() {
   unset AUTO_VENV_DEFAULT
   unset AUTO_VENV_SELECTED
   unset OLD_AUTO_VENV_BASE_DIR
+  unset AUTO_VENV_PREFERRED
 }
 
 function cd() {
   builtin cd "$@" || return
   OLD_AUTO_VENV_BASE_DIR=$AUTO_VENV_BASE_DIR
   unset AUTO_VENV
-  
+  unset AUTO_VENV_PREFERRED
+
   # Look for .auto_venv file and validate the environment
   __find_auto_venv_file
   
