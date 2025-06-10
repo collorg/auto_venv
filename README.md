@@ -8,6 +8,7 @@
 
 [![Version](https://img.shields.io/badge/version-0.2.0--alpha-orange)](https://github.com/collorg/auto_venv)
 [![Status](https://img.shields.io/badge/status-alpha-red)](https://github.com/collorg/auto_venv)
+[![Tests](https://github.com/collorg/auto_venv/actions/workflows/ci.yml/badge.svg)](https://github.com/collorg/auto_venv)
 
 </div>
 
@@ -22,7 +23,6 @@ Automatic Python virtual environment activation with multi-environment and multi
 - **Multi-shell support** - Works with Bash, Zsh, and Fish shells
 - **Automatic activation/deactivation** when changing directories
 - **Multi-environment support** - manage multiple Python versions per project
-- **Automatic format conversion** from old single-environment to new multi-environment format
 - **Environment switching** - easily switch between different Python versions
 - **Recursive search** for `.auto_venv` files up the directory tree
 - **Multiple Python versions** support (Python 2.7 with virtualenv, Python 3+ with venv)
@@ -272,7 +272,7 @@ auto_venv/
 ├── auto_venv.zsh      # Zsh implementation (uses chpwd hook)
 ├── auto_venv.fish     # Fish implementation (uses PWD event)
 ├── install.sh         # Universal installation script
-├── uninstall.sh       # installation script
+├── uninstall.sh       # uninstallation script
 └── test
     └── test_auto_venv.sh  # Test suite for POSIX shells
 ```

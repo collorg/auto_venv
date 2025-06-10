@@ -1,7 +1,7 @@
 # AI-Assisted Development Process
 
 ## Overview
-Prior to June 2026, this project was developed without AI assistance.
+Prior to June 2025, this project was developed without AI assistance.
 This document outlines how AI was used in developing it since.
 
 ## Key Development Areas
