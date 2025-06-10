@@ -6,7 +6,7 @@
 
 **This software is not yet stable. Expect bugs and breaking changes until v1.0**
 
-[![Version](https://img.shields.io/badge/version-0.2.0--alpha-orange)](https://github.com/collorg/auto_venv)
+[![Version](https://img.shields.io/badge/version-0.3.0--alpha-orange)](https://github.com/collorg/auto_venv)
 [![Status](https://img.shields.io/badge/status-alpha-red)](https://github.com/collorg/auto_venv)
 [![Tests](https://github.com/collorg/auto_venv/actions/workflows/ci.yml/badge.svg)](https://github.com/collorg/auto_venv)
 
@@ -396,7 +396,7 @@ code quality and human oversight.
 
 ## Project Status
 
-**Current version: 0.2.0-alpha**
+**Current version: 0.3.0-alpha**
 
 This project is under active development. Until we reach v1.0:
 
