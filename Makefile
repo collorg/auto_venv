@@ -6,25 +6,13 @@ all: test
 # Run all tests
 test:
 	@echo "Running auto_venv tests..."
-	@chmod +x test_auto_venv.sh
-	@./test_auto_venv.sh
-
-# Quick smoke test (basic functionality)
-test-quick:
-	@echo "Running quick smoke tests..."
-	@chmod +x test_auto_venv.sh
-	@bash -c 'source ./test_auto_venv.sh && setup_test_env && test_initial_setup && test_auto_venv_file_creation && cleanup_test_env'
+	@chmod +x test/test_auto_venv.sh
+	@./test/test_auto_venv.sh
 
 # Install auto_venv (add to .bashrc)
 install:
 	@echo "Installing auto_venv..."
-	@if ! grep -q "auto_venv.sh" ~/.bashrc; then \
-		echo "source $(PWD)/auto_venv.sh" >> ~/.bashrc; \
-		echo "✓ Added auto_venv.sh to ~/.bashrc"; \
-		echo "  Run 'source ~/.bashrc' or restart your terminal"; \
-	else \
-		echo "✓ auto_venv.sh already in ~/.bashrc"; \
-	fi
+	@./install.sh
 
 # Uninstall auto_venv (remove from .bashrc)
 uninstall:

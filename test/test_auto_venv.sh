@@ -1,8 +1,6 @@
 #!/bin/bash
 # test_auto_venv.sh - Safe test suite for auto_venv.sh (adapted for validation)
 
-#set -e  # Exit on any error
-
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -462,7 +460,7 @@ EOF
     create_minimal_venv "./venv310"
     
     # Test parsing
-    __parse_auto_venv_file ".auto_venv"
+    __auto_venv_parse_file ".auto_venv"
     
     # Check default
     assert_equals "./venv_default" "$AUTO_VENV_DEFAULT" "Default environment should be set correctly"
@@ -490,7 +488,7 @@ test_old_format_conversion() {
     create_minimal_venv "./my_venv"
     
     # Test parsing triggers conversion
-    __parse_auto_venv_file ".auto_venv"
+    __auto_venv_parse_file ".auto_venv"
     
     # Check that file was converted
     local file_content=$(cat .auto_venv)
@@ -524,7 +522,7 @@ EOF
     create_minimal_venv "./venv310"
     
     # Parse the file first
-    __parse_auto_venv_file ".auto_venv"
+    __auto_venv_parse_file ".auto_venv"
     
     # Test default selection
     AUTO_VENV_BASE_DIR="$PWD"
@@ -590,7 +588,7 @@ EOF
     create_minimal_venv "./venv310"
     
     # Test parsing handles empty lines and spaces
-    __parse_auto_venv_file ".auto_venv"
+    __auto_venv_parse_file ".auto_venv"
     
     assert_equals "./venv" "$AUTO_VENV_DEFAULT" "Default should be parsed correctly"
     assert_equals "./venv39" "${AUTO_VENV_ENVIRONMENTS[python3.9]}" "Python 3.9 should be parsed"

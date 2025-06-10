@@ -1,5 +1,16 @@
 # auto_venv
 
+<div align="center">
+
+⚠️ **ALPHA VERSION** ⚠️
+
+**This software is not yet stable. Expect bugs and breaking changes until v1.0**
+
+[![Version](https://img.shields.io/badge/version-0.2.0--alpha-orange)](https://github.com/collorg/auto_venv)
+[![Status](https://img.shields.io/badge/status-alpha-red)](https://github.com/collorg/auto_venv)
+
+</div>
+
 Automatic Python virtual environment activation with multi-environment and multi-shell support based on .auto_venv files when changing directories.
 
 ## Overview
@@ -244,8 +255,7 @@ fish    # Switch to fish - environment remains active
 ## Command Reference
 
 - `auto_venv` - Show current environment status
-- `auto_venv --new` - Create a new virtual environment (first environment)
-- `auto_venv --add [name]` - Add a new environment with optional custom name
+- `auto_venv --new` - Create a new virtual environment
 - `auto_venv --switch <name>` - Switch to a different environment
 - `auto_venv --list` - List all available environments
 - `auto_venv --set-default <name>` - Set the default environment
@@ -256,13 +266,15 @@ fish    # Switch to fish - environment remains active
 
 ```
 auto_venv/
+├── README.md          # This file
 ├── auto_venv          # Universal dispatcher (detects shell and loads appropriate version)
 ├── auto_venv.sh       # Bash/POSIX implementation
 ├── auto_venv.zsh      # Zsh implementation (uses chpwd hook)
 ├── auto_venv.fish     # Fish implementation (uses PWD event)
 ├── install.sh         # Universal installation script
-├── test_auto_venv.sh  # Test suite
-└── README.md          # This file
+├── uninstall.sh       # installation script
+└── test
+    └── test_auto_venv.sh  # Test suite for POSIX shells
 ```
 
 ## How it works
@@ -283,30 +295,6 @@ auto_venv/
   - `virtualenv` (for Python 2.7)
   - `venv` module (built-in for Python 3.3+)
 
-## Migration from Old Format
-
-If you have existing `.auto_venv` files with the old single-line format, they will be automatically converted to the new multi-environment format when you first access them. The conversion preserves your existing environment and allows you to add more.
-
-Old format:
-```
-./venv
-```
-
-Automatically converted to:
-```
-default:./venv
-python:./venv
-```
-
-## Upgrading from Previous Versions
-
-If you were using an older version of auto_venv:
-
-1. The new version is backward compatible - your existing `.auto_venv` files will work
-2. The universal dispatcher means you only need one `source` line in your RC files
-3. Run `install.sh` to automatically update all your shell configurations
-4. Old reference to `auto_venv.sh` should be updated to just `auto_venv`
-
 ## Why auto_venv?
 
 Unlike other virtual environment managers, auto_venv offers:
@@ -315,7 +303,6 @@ Unlike other virtual environment managers, auto_venv offers:
 - **Zero learning curve**: Just `cd` into your project
 - **Multi-environment per project**: Test across Python versions easily  
 - **No dependencies**: Pure shell implementation
-- **Automatic conversion**: Upgrades your existing setups automatically
 - **Universal interface**: Same commands work across all shells
 
 ## Contributing
@@ -371,3 +358,32 @@ This project was developed using AI-assisted programming.
 See [DEVELOPMENT.md](DEVELOPMENT.md) for details on the development process
 and how AI tools were used to accelerate development while maintaining
 code quality and human oversight.
+
+## Project Status
+
+**Current version: 0.2.0-alpha**
+
+This project is under active development. Until we reach v1.0:
+
+- ❌ **Not production-ready**
+- ⚠️ **API may change** 
+- 🐛 **Bugs are expected**
+- 📝 **Documentation may be incomplete**
+
+### Roadmap to v1.0
+
+- [ ] Fix all known bugs in multi-shell support
+- [ ] Complete test coverage for all shells
+- [ ] Stabilize API and configuration format
+- [ ] Add comprehensive error handling
+- [ ] Performance optimization
+- [ ] Full documentation
+
+### How to Help
+
+1. **Test it** and report bugs
+2. **Contribute** fixes and improvements
+3. **Share feedback** on the API design
+4. **Star the repo** if you find it useful
+
+Estimated v1.0 release: When it's ready™
