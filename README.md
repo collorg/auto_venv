@@ -31,6 +31,10 @@ Automatic Python virtual environment activation with multi-environment and multi
 - **Visual feedback** showing current environment status
 - **Environment validation** to ensure virtual environments are properly configured
 
+## Compatibility
+
+`auto_venv` is designed for Unix-type shells. It has been tested on Ubuntu and should work with any Linux distribution. For Windows users, it requires a Unix-like environment such as WSL (Windows Subsystem for Linux), Git Bash, Cygwin or MSYS2.
+
 ## Installation
 
 ### Automatic Installation (Recommended)
